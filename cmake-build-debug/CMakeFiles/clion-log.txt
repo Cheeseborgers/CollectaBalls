@@ -1,7 +1,0 @@
-/opt/clion-2019.3.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/local/gcc-9.3/bin/gcc-9.3 -DCMAKE_CXX_COMPILER=/usr/local/gcc-9.3/bin/g++-9.3 -G "CodeBlocks - Unix Makefiles" /home/fason/dev/c_plus_plus/CMake/collectaballs
--- libudev stable: 1
--- Found UDev: /usr/lib/x86_64-linux-gnu/libudev.so
---    include: /usr/include
--- Configuring done
--- Generating done
--- Build files have been written to: /home/fason/dev/c_plus_plus/CMake/collectaballs/cmake-build-debug
