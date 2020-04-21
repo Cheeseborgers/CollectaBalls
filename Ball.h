@@ -1,6 +1,6 @@
 //
 //      Created by Goodecheeseburgers on 20/04/2020.
-//      CollectaBalls. A C++ / SFML Game with collectaballs.
+//      CollectaBalls. A C++ / SFML Game with balls.
 //      Copyright (C) 2020 - goodecheeseburgers@gmail.com
 //
 //      https://github.com/Cheeseborgers/CollectaBalls
@@ -30,19 +30,26 @@
 #include <iostream>
 #include <ctime>
 #include <memory>
+#include <sstream>
 
+
+enum BallTypes {DEFAULT = 0, DAMAGING, HEALING, NROFTYPES};
 
 class Ball {
 
 private:
     sf::CircleShape shape;
+    int type;
 
     // Private methods
     void initShape(const sf::RenderWindow& window);
 
 public:
     // Constructor
-    explicit Ball(const sf::RenderWindow& window);
+    Ball(const sf::RenderWindow& window, int type);
+
+    const sf::CircleShape& getShape() const;
+    const int& getType() const;
 
     // Methods
     void update(const sf::RenderTarget& target);

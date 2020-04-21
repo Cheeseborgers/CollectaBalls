@@ -1,6 +1,6 @@
 //
 //      Created by Goodecheeseburgers on 20/04/2020.
-//      CollectaBalls. A C++ / SFML Game with collectaballs.
+//      CollectaBalls. A C++ / SFML Game with balls.
 //      Copyright (C) 2020 - goodecheeseburgers@gmail.com
 //
 //      https://github.com/Cheeseborgers/CollectaBalls
@@ -21,10 +21,13 @@
 
 #include "Player.h"
 
+
 // Private Methods -----------------------------------------------------------------------------------------------------
 void Player::initVariables()
 {
-    this->velocity = 10.F;
+    this->velocity = 5.F;
+    this->hpMax = 10;
+    this->hp = hpMax;
 }
 // ---------------------------------------------------------------------------------------------------------------------
 void Player::initShape()
@@ -101,7 +104,77 @@ void Player::update(const sf::RenderTarget& target)
 // ---------------------------------------------------------------------------------------------------------------------
 void Player::render(sf::RenderTarget& target)
 {
+    /* @return void
+     * Renders the sfml rectangle shape of the player
+     * to the target/window.
+     * */
+
     target.draw(this->shape);
+}
+// ---------------------------------------------------------------------------------------------------------------------
+const sf::RectangleShape &Player::getShape() const
+{
+    /* @return sf::RectangleShape&
+     * Returns the sfml rectangle shape of the player.
+     * */
+
+    return this->shape;
+}
+// ---------------------------------------------------------------------------------------------------------------------
+const int &Player::getHp() const
+{
+    /* @return int&
+     * Returns hp of player.
+     * */
+
+    return this->hp;
+}
+// ---------------------------------------------------------------------------------------------------------------------
+const int &Player::getHpMax() const
+{
+    /* @return int&
+     * Returns hpMax of the player.
+     * */
+
+    return this->hpMax;
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Player::takeDamage(const int damage)
+{
+    /* @return void
+     * - Sets hp damage to player.
+     * - If hp goes below 0, sets hp back to 0
+     *   for display purposes.
+     * */
+
+    if (this->hp > 0)
+    {
+        this->hp -= damage;
+    }
+
+    if (this->hp < 0)
+    {
+        this->hp = 0;
+    }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Player::gainHealth(const int healthGain)
+{
+    /* @return void
+     * - Sets hp gain to player.
+     * - If hp goes above hpMax, sets hp back to hpMax
+     *   for display purposes.
+     * */
+
+    if (this->hp < this->hpMax)
+    {
+        this->hp += healthGain;
+    }
+
+    if (this->hp > this->hpMax)
+    {
+        this->hp = this->hpMax;
+    }
 }
 // ---------------------------------------------------------------------------------------------------------------------
 

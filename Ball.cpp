@@ -1,6 +1,6 @@
 //
 //      Created by Goodecheeseburgers on 20/04/2020.
-//      CollectaBalls. A C++ / SFML Game with collectaballs.
+//      CollectaBalls. A C++ / SFML Game with balls.
 //      Copyright (C) 2020 - goodecheeseburgers@gmail.com
 //
 //      https://github.com/Cheeseborgers/CollectaBalls
@@ -29,8 +29,26 @@ void Ball::initShape(const sf::RenderWindow& window)
     // Set a random radius
     this->shape.setRadius(static_cast<float>(rand() % 10 + 10));
 
-    // Set a random rgb color
-    sf::Color color(rand() % 255 +1, rand() % 255 + 1, rand() % 255 + 1);
+    sf::Color color;
+    switch (this->type)
+    {
+        case DEFAULT:
+            color = sf::Color(rand() % 255 +1, rand() % 255 + 1, rand() % 255 + 1);
+            break;
+        case DAMAGING:
+            color = sf::Color::Red;
+            this->shape.setOutlineColor(sf::Color::White);
+            this->shape.setOutlineThickness(2.F);
+            break;
+        case HEALING:
+            color = sf::Color::Green;
+            this->shape.setOutlineColor(sf::Color::White);
+            this->shape.setOutlineThickness(2.F);
+            break;
+        default:
+            break;
+    }
+
     this->shape.setFillColor(color);
 
     this->shape.setPosition(
@@ -40,7 +58,8 @@ void Ball::initShape(const sf::RenderWindow& window)
                     ));
 }
 // Constructor ---------------------------------------------------------------------------------------------------------
-Ball::Ball(const sf::RenderWindow& window)
+Ball::Ball(const sf::RenderWindow& window, int type)
+    : type(type)
 {
     this->initShape(window);
 }
@@ -52,6 +71,25 @@ void Ball::update(const sf::RenderTarget &target)
 // ---------------------------------------------------------------------------------------------------------------------
 void Ball::render(sf::RenderTarget &target)
 {
+    /* @return void
+     * Renders the sfml circle shape of a the ball
+     * to the target/window
+     * */
+
     target.draw(this->shape);
+}
+
+const sf::CircleShape &Ball::getShape() const
+{
+    /* @return sf::CircleShape&
+     * Returns the sfml circle shape of the ball
+     * */
+
+    return this->shape;
+}
+
+const int &Ball::getType() const
+{
+    return this->type;
 }
 // ---------------------------------------------------------------------------------------------------------------------

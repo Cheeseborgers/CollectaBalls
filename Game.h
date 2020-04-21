@@ -33,31 +33,43 @@ private:
     bool endGame{};
 
     Player player;
+    int points{};
 
+    // Gui stuff
+    sf::Font guiFont;
+    sf::Text guiText;
+    sf::Font endGameFont;
+    sf::Text endGameText;
+
+    // Balls
     std::vector<Ball> balls;
     float spawnTimerMax{};
     float spawnTimer{};
-    int maxBalls;
+    int maxBalls{};
 
     // Private Methods
     void initVariables();
     void initWindow();
+    void initFonts();
+    void initText();
 
 public:
     // Constructor and Destructors
     Game();
     ~Game();
 
-    // Accessors
-
-    // Modifiers
-
     // Methods
     [[nodiscard]] bool running() const;
     void pollEvents();
 
     void spawnBalls();
+    static int randomiseBallType() ;
+
+    void updatePlayer();
+    void updateCollision();
+    void updateGui();
     void update();
+    void renderGui(sf::RenderTarget& target);
     void render();
 };
 

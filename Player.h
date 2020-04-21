@@ -30,6 +30,8 @@ private:
     sf::RectangleShape shape;
 
     float velocity{};
+    int hp{};
+    int hpMax{};
 
     void initVariables();
     void initShape();
@@ -37,6 +39,15 @@ private:
 public:
     // Constructor
     explicit Player(float x = 0.F, float y = 0.F);
+
+    // Accessors
+    const sf::RectangleShape& getShape() const;
+    const int& getHp() const;
+    const int& getHpMax() const;
+
+    // Modifiers
+    void takeDamage(int damage);
+    void gainHealth(int healthGain);
 
     // Methods
     void updateInput();

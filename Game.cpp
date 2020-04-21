@@ -21,13 +21,19 @@
 
 #include "Game.h"
 
+
 // Private Methods -----------------------------------------------------------------------------------------------------
 void Game::initVariables()
 {
     this->endGame = false;
+
+    // Balls
     this->spawnTimerMax = 10.F;
     this->spawnTimer = this->spawnTimerMax;
     this->maxBalls = 10;
+
+    // Player
+    this->points = 0;
 }
 // ---------------------------------------------------------------------------------------------------------------------
 void Game::initWindow()
@@ -36,13 +42,42 @@ void Game::initWindow()
 
     this->window = std::make_unique<sf::RenderWindow>( // Create window
             this->videoMode,
-            "Balls",
+            "CollectaBalls",
             sf::Style::Titlebar | sf::Style::Close
     );
 
     this->window->setFramerateLimit(60); // Set framerate
 
     this->window->setVerticalSyncEnabled(false); // Set Vsync to false;
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Game::initFonts()
+{
+    if (!this->guiFont.loadFromFile("fonts/hemi-head/hemi_head.ttf"))
+    {
+        std::cout << "ERROR::GAME::INITFONT: COULD NOT LOAD hemi_head.ttf\n";
+    }
+
+    if (!this->endGameFont.loadFromFile("fonts/chlorinar/chlorinar.ttf"))
+    {
+        std::cout << "ERROR::GAME::INITFONT: COULD NOT LOAD chlorinar.ttf\n";
+    }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Game::initText()
+{
+    // GUI text for score, health
+    this->guiText.setFont(this->guiFont);
+    this->guiText.setFillColor(sf::Color::White);
+    this->guiText.setCharacterSize(32);
+    this->guiText.setPosition(sf::Vector2f(0.F, 0.F));
+
+    // Game over text
+    this->endGameText.setFont(this->endGameFont);
+    this->endGameText.setFillColor(sf::Color::Red);
+    this->endGameText.setCharacterSize(60);
+    this->endGameText.setPosition(sf::Vector2f(20.F, 300.F));
+    this->endGameText.setString("You are deaded!\n Exit the game");
 }
 // Constructor and Destructors -----------------------------------------------------------------------------------------
 Game::Game()
@@ -52,6 +87,9 @@ Game::Game()
 
     // Initialise and create a window
     this->initWindow();
+
+    this->initFonts();
+    this->initText();
 }
 // ---------------------------------------------------------------------------------------------------------------------
 Game::~Game() = default;
@@ -66,21 +104,80 @@ void Game::spawnBalls()
 
         if (this->balls.size() < this->maxBalls)
         {
-            this->balls.emplace_back(Ball(*this->window));
+            this->balls.emplace_back(Ball(*this->window, randomiseBallType()));
 
             this->spawnTimer = 0.F;
         }
     }
 }
 // ---------------------------------------------------------------------------------------------------------------------
+void Game::updatePlayer()
+{
+    this->player.update(*this->window);
+
+    if (this->player.getHp() <= 0)
+    {
+        this->endGame = true;
+    }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Game::updateCollision()
+{
+    // Check the collision
+    for (size_t i = 0; i < this->balls.size(); ++i)
+    {
+        if (this->player.getShape().getGlobalBounds().intersects(this->balls[i].getShape().getGlobalBounds()))
+        {
+            switch (this->balls[i].getType())
+            {
+                case BallTypes::DEFAULT:
+                    this->points++;
+                    break;
+                case BallTypes::DAMAGING:
+                    this->player.takeDamage(1);
+                    break;
+                case BallTypes::HEALING:
+                    this->player.gainHealth(1);
+                    break;
+                default:
+                    break;
+            }
+
+            // Add points
+            this->points += 1;
+            // Remove the ball
+            this->balls.erase(this->balls.begin() + i);
+        }
+    }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Game::updateGui()
+{
+    std::stringstream ss;
+
+    ss << "- Points: " << this->points << "\n"
+        << "- Health: " << this->player.getHp() << " / " << this->player.getHpMax();
+
+    this->guiText.setString(ss.str());
+}
+// ---------------------------------------------------------------------------------------------------------------------
 void Game::update()
 {
     this->pollEvents();
 
-    this->spawnBalls();
+    if (!this->endGame)
+    {
+        this->spawnBalls();
 
-    // Update player
-    this->player.update(*this->window);
+        this->updatePlayer();
+        this->updateCollision();
+        this->updateGui();
+    }
+}
+// ---------------------------------------------------------------------------------------------------------------------
+void Game::renderGui(sf::RenderTarget& target)
+{
+    target.draw(this->guiText);
 }
 // ---------------------------------------------------------------------------------------------------------------------
 void Game::render()
@@ -95,12 +192,27 @@ void Game::render()
         i.render(*this->window);
     }
 
+    // Render gui
+    this->renderGui(*this->window);
+
+    // Render end text
+    if (this->endGame)
+    {
+        this->window->draw(this->endGameText);
+    }
+
     this->window->display(); // Display frame in window
 }
 // ---------------------------------------------------------------------------------------------------------------------
 bool Game::running() const
 {
-    return this->window->isOpen();
+    /* @return bool
+     * - Returns sfml window closed bool.
+     * - NOTE: removing comment in return statement will
+     *   instantly close the game once player hp == 0
+     * */
+
+    return this->window->isOpen() /*&& !this->endGame*/;
 }
 // ---------------------------------------------------------------------------------------------------------------------
 void Game::pollEvents()
@@ -125,7 +237,21 @@ void Game::pollEvents()
     }
 }
 // ---------------------------------------------------------------------------------------------------------------------
+int Game::randomiseBallType()
+{
+    int type = BallTypes::DEFAULT;
 
+    int randValue = rand() % 100 + 1;
 
+    if (randValue > 60 && randValue <= 80)
+    {
+        type = BallTypes::DAMAGING;
+    }
+    else if (randValue > 80 && randValue <= 100)
+    {
+        type = BallTypes::HEALING;
+    }
 
-
+    return type;
+}
+// ---------------------------------------------------------------------------------------------------------------------
